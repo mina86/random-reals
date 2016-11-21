@@ -32,12 +32,15 @@ static List get_list() {
 }
 
 
-static void print_bar(unsigned width) {
+static void print_bar(unsigned width, bool dots=false) {
+	if (dots) {
+		fputs("...", stdout);
+	}
 	for (; width > 1; width -= 2) {
 		putchar('#');
 	}
 	if (width) {
-		putchar('.');
+		putchar('|');
 	}
 	putchar('\n');
 }
@@ -56,37 +59,47 @@ static void print_pairs(It it, It end, uint32_t max) {
 
 
 static void print_histogram(const List &list) {
-	static const unsigned size = 32;
+	static const unsigned count = 32;
 
-	uint32_t buckets[size], out_of_range = 0, n;
+	uint32_t buckets[count], out_of_range = 0, n;
 	unsigned i;
 
 	memset(buckets, 0, sizeof buckets);
 
 	for (const auto &pair : list) {
-		i = pair.second * size;
-		if (i < size) {
+		i = pair.second * count;
+		if (i < count) {
 			buckets[i] += pair.first;
 		} else {
 			out_of_range += pair.first;
 		}
 	}
 
-	n = buckets[0];
-	for (i = 1; i < size; ++i) {
-		if (buckets[i] > n) {
-			n = buckets[i];
+	uint32_t min = buckets[0], max = min;
+	for (i = 1; i < count; ++i) {
+		if (buckets[i] > max) {
+			max = buckets[i];
+		} else if (buckets[i] < min) {
+			min = buckets[i];
+		}
+	}
+	if (min == max) {
+		min = 0;
+	} else {
+		uint32_t d = (max - min) / 2;
+		if (min >= d) {
+			min -= d;
 		}
 	}
 
-	double width_ratio = 100.0 / n;
-	double step = 1.0 / size;
+	double width_ratio = (min ? 94.0 : 100.0) / (max - min);
+	double step = 1.0 / count;
 
 	putchar('\n');
-	for (i = 0; i < size; ++i) {
+	for (i = 0; i < count; ++i) {
 		n = buckets[i];
 		printf("%5.3f [%9" PRIu32 "] ", i * step, n);
-		print_bar(n * width_ratio);
+		print_bar((n - min)* width_ratio, min);
 	}
 
 	if (out_of_range) {
