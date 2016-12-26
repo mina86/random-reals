@@ -1,9 +1,10 @@
 #include <stdint.h>
 #include <string.h>
+#include <float.h>
 
 #ifdef USE_BITS
 
-#ifndef __STDC_IEC_559__
+#if !defined(__STDC_IEC_559__) || FLT_RADIX != 2 || FLT_MANT_DIG != 24
 #  error "This code requires IEEE 754 floating point arithmetic."
 #endif
 
