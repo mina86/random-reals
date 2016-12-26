@@ -3,35 +3,37 @@ CXXFLAGS += -std=c++11
 
 all: benchmark density
 
-benchmark: benchmark.div benchmark.bits
-density: density.div density.bits
+benchmark: bin/benchmark.div bin/benchmark.bits
+density: bin/density.div bin/density.bits
 
 
 run-benchmark: benchmark
 	@echo; echo '*** Benchmark ***'; echo
-	@echo '=== Using division ==='; time ./benchmark.div
-	@echo '=== Using bit manipulations ==='; time ./benchmark.bits
+	@echo '=== Using division ==='; time ./bin/benchmark.div
+	@echo '=== Using bit manipulations ==='; time ./bin/benchmark.bits
 
 run-density: density
 	@echo; echo '*** Density ***'; echo
-	@echo '=== Using division ==='; ./density.div
-	@echo '=== Using bit manipulations ==='; ./density.bits
+	@echo '=== Using division ==='; ./bin/density.div
+	@echo '=== Using bit manipulations ==='; ./bin/density.bits
 
 run-all: run-benchmark run-density
 
 
-benchmark.%: CPPFLAGS+=-O3
+bin/benchmark.%: CPPFLAGS+=-O3
 
 
-%.div: %.cpp make-float.h
+bin/%.div: src/%.cpp src/make-float.h
+	@mkdir -p -- $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
-%.bits: %.cpp make-float.h
+bin/%.bits: src/%.cpp src/make-float.h
+	@mkdir -p -- $(dir $@)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -DUSE_BITS -o $@ $^ $(LDFLAGS)
 
 
 clean:
-	rm -f -- density.div density.bits benchmark.div benchmark.bits
+	[ ! -d bin ] || rm -r -- bin
 
 
 .SUFFIXES:
