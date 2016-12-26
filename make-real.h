@@ -42,7 +42,7 @@
 #endif
 
 #if FLT_RADIX != 2
-#  erro "The library requires FLT_RADIX to be 2"
+#  error "The library requires FLT_RADIX to be 2"
 #endif
 
 
